@@ -4,10 +4,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const spotify_web_api_node_1 = __importDefault(require("spotify-web-api-node"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const env = process.env;
 // credentials are optional
 const spotifyApi = new spotify_web_api_node_1.default({
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    redirectUri: process.env.REDIRECT_URI,
+    clientId: env.CLIENT_ID,
+    clientSecret: env.CLIENT_SECRET,
+    redirectUri: env.REDIRECT_URI,
 });
-console.log(spotifyApi.getAccessToken());
+spotifyApi.clientCredentialsGrant().then(function (data) {
+    console.log('The access token expires in ' + data.body['expires_in']);
+    console.log('The access token is ' + data.body['access_token']);
+    spotifyApi.setAccessToken(data.body['access_token']);
+    // spotifyApi.searchArtists('Love')
+    //   .then(function(data) {
+    //     console.log('Search artists by "Love"', data.body);
+    //   }, function(err) {
+    //     console.error(err);
+    //   })
+}, function (err) {
+    console.log('Something went wrong when retrieving an access token', err);
+});
