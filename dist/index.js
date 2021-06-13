@@ -3,26 +3,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const spotify_web_api_node_1 = __importDefault(require("spotify-web-api-node"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
-const env = process.env;
-// credentials are optional
-const spotifyApi = new spotify_web_api_node_1.default({
-    clientId: env.CLIENT_ID,
-    clientSecret: env.CLIENT_SECRET,
-    redirectUri: env.REDIRECT_URI,
-});
-spotifyApi.clientCredentialsGrant().then(function (data) {
-    console.log('The access token expires in ' + data.body['expires_in']);
-    console.log('The access token is ' + data.body['access_token']);
-    spotifyApi.setAccessToken(data.body['access_token']);
-    // spotifyApi.searchArtists('Love')
-    //   .then(function(data) {
-    //     console.log('Search artists by "Love"', data.body);
-    //   }, function(err) {
-    //     console.error(err);
-    //   })
-}, function (err) {
-    console.log('Something went wrong when retrieving an access token', err);
-});
+const express_1 = __importDefault(require("express"));
+const apollo_server_express_1 = require("apollo-server-express");
+const spotify_1 = require("./spotify");
+const graphql_1 = require("./graphql");
+const app = express_1.default();
+const resolvers = {
+    Query: {
+        hello: () => spotify_1.spotifyApi.searchArtists('Love')
+            .then(function (data) {
+            console.log('Search artists by "Love"', data.body);
+        }, function (err) {
+            console.error(err);
+        })
+    },
+};
+const server = new apollo_server_express_1.ApolloServer({ typeDefs: graphql_1.typeDefs, resolvers });
+server.applyMiddleware({ app });
+app.listen({ port: 4000 }, () => console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`));
