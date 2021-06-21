@@ -7,11 +7,13 @@ const app = express()
 
 const resolvers = {
   Query: {
-    hello: () => spotifyApi.searchArtists('Love')
-      .then(function(data) {
+    getGraphData: (a:string) => spotifyApi.searchArtists(a)
+      .then((data) => {
         console.log('Search artists by "Love"', data.body);
-      }, function(err) {
+        return data.body
+      }, (err) => {
         console.error(err);
+        return err
       })
   },
 }

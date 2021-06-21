@@ -10,11 +10,13 @@ const graphql_1 = require("./graphql");
 const app = express_1.default();
 const resolvers = {
     Query: {
-        hello: () => spotify_1.spotifyApi.searchArtists('Love')
-            .then(function (data) {
+        getGraphData: (a) => spotify_1.spotifyApi.searchArtists(a)
+            .then((data) => {
             console.log('Search artists by "Love"', data.body);
-        }, function (err) {
+            return data.body;
+        }, (err) => {
             console.error(err);
+            return err;
         })
     },
 };
